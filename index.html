@@ -2,56 +2,55 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>My Awesome Services</title>
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
-
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <style>
-    body {
-        font-family: 'Poppins', sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-  </style>
 </head>
-<body>
+<body class="bg-gradient-to-br from-indigo-600 to-purple-600 font-poppins min-h-screen flex items-center justify-center">
 
-<div class="max-w-xl mx-auto my-10 p-8 bg-white rounded-2xl shadow-xl">
-  <h1 class="text-4xl font-bold text-gray-800 mb-6 text-center">🚀 Welcome to My Services!</h1>
+  <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-lg">
+    <h1 class="text-4xl font-bold mb-6 text-center">🚀 Welcome to My Services!</h1>
+    <form id="service-form" enctype="multipart/form-data" class="space-y-4">
+      <!-- your inputs here… -->
+      <button id="submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg">
+        Submit 🚀
+      </button>
+    </form>
 
-  <form name="service-form" method="POST" netlify enctype="multipart/form-data">
-    <div class="mb-4">
-      <label class="block text-gray-700 font-medium mb-2">Name</label>
-      <input type="text" name="name" required class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-    </div>
+    <!-- container to show Make’s response -->
+    <pre id="response-output" class="mt-6 bg-gray-100 p-4 rounded overflow-auto text-sm"></pre>
+  </div>
 
-    <div class="mb-4">
-      <label class="block text-gray-700 font-medium mb-2">Email</label>
-      <input type="email" name="email" required class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-    </div>
+  <script>
+    const form = document.getElementById('service-form');
+    const output = document.getElementById('response-output');
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const url = 'https://hook.eu1.make.com/XXXXXXXXXXXX';  // ← your Make webhook URL
 
-    <div class="mb-4">
-      <label class="block text-gray-700 font-medium mb-2">Service Requested</label>
-      <select name="service" class="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        <option>ChitFund Helper</option>
-      </select>
-    </div>
+      // collect form data
+      const fd = new FormData(form);
 
-    <div class="mb-6">
-      <label class="block text-gray-700 font-medium mb-2">Upload Image (optional)</label>
-      <input type="file" name="image" class="w-full p-3 border rounded-lg cursor-pointer focus:outline-none">
-    </div>
+      // POST to Make
+      const res = await fetch(url, {
+        method: 'POST',
+        body: fd
+      });
 
-    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg shadow-lg transition duration-300 ease-in-out">
-      Submit 🚀
-    </button>
-  </form>
-</div>
+      // try to parse JSON (or text)
+      let body;
+      const ct = res.headers.get('content-type') || '';
+      if (ct.includes('application/json')) {
+        body = await res.json();
+        body = JSON.stringify(body, null, 2);
+      } else {
+        body = await res.text();
+      }
 
+      // display it
+      output.textContent = body;
+    });
+  </script>
 </body>
 </html>
