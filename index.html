@@ -5,31 +5,45 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>My AI-Enhanced Service Form</title>
   <!-- Google Fonts + Tailwind -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  />
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gradient-to-br from-indigo-600 to-purple-600 font-poppins min-h-screen flex items-center justify-center">
   <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-lg">
     <h1 class="text-4xl font-bold mb-6 text-center">🚀 Welcome to My Services!</h1>
 
-    <!-- Form: user uploads an image here -->
+    <!-- Form -->
     <form id="service-form" enctype="multipart/form-data" class="space-y-4">
       <div>
         <label class="block text-gray-700 font-medium mb-1">Name</label>
-        <input type="text" name="name" required
-               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+        <input
+          type="text"
+          name="name"
+          required
+          class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
       </div>
 
       <div>
         <label class="block text-gray-700 font-medium mb-1">Email</label>
-        <input type="email" name="email" required
-               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+        <input
+          type="email"
+          name="email"
+          required
+          class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
       </div>
 
       <div>
         <label class="block text-gray-700 font-medium mb-1">Service Requested</label>
-        <select name="service" required
-                class="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <select
+          name="service"
+          required
+          class="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
           <option value="">– choose one –</option>
           <option>Resume Writing</option>
           <option>YouTube Shorts Automation</option>
@@ -39,22 +53,28 @@
 
       <div>
         <label class="block text-gray-700 font-medium mb-1">Upload Image (optional)</label>
-        <input type="file" name="image" accept="image/*"
-               class="w-full p-2 border rounded-lg cursor-pointer focus:outline-none"/>
+        <input
+          type="file"
+          name="image"
+          accept="image/*"
+          class="w-full p-2 border rounded-lg cursor-pointer focus:outline-none"
+        />
       </div>
 
-      <button type="submit"
-              class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition">
+      <button
+        type="submit"
+        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition"
+      >
         Submit 🚀
       </button>
     </form>
 
-    <!-- Response will be rendered here -->
+    <!-- Response -->
     <div id="response-container" class="mt-6 text-center"></div>
   </div>
 
   <script>
-    // ← Replace with your Make.com webhook URL:
+    // ← your Make.com webhook URL
     const MAKE_WEBHOOK_URL = 'https://hook.eu2.make.com/8pcx1afbg0qfb4ckhcelikci1b55c75y';
 
     document.getElementById('service-form').addEventListener('submit', async e => {
@@ -62,33 +82,33 @@
       const form = e.target;
       const fd = new FormData(form);
 
-      // Send form + image to Make
-      let json;
+      let res;
       try {
-        const res = await fetch(MAKE_WEBHOOK_URL, {
+        res = await fetch(MAKE_WEBHOOK_URL, {
           method: 'POST',
           body: fd
         });
-        json = await res.json();
       } catch (err) {
-        document.getElementById('response-container').innerHTML = `
-          <p class="text-red-600 font-medium">Error submitting form: ${err}</p>
-        `;
-        return;
+        return (document.getElementById('response-container').innerHTML =
+          '<p class="text-red-600">Error: ' + err.message + '</p>');
       }
 
-      // Render returned image (assumes your Make "Respond" step returns {"imageUrl": "..."} )
-      const out = document.getElementById('response-container');
-      if (json.imageUrl) {
-        out.innerHTML = `
+      // **READ imageUrl FROM RESPONSE HEADERS**  
+      const imageUrl = res.headers.get('imageUrl');
+      const container = document.getElementById('response-container');
+
+      if (imageUrl) {
+        container.innerHTML = `
           <p class="mb-4 font-medium text-gray-800">Here’s your result:</p>
-          <img src="${json.imageUrl}"
+          <img src="${imageUrl}"
                alt="Result image"
                class="mx-auto max-w-full rounded-lg shadow-lg"/>
         `;
       } else {
-        // Fallback: show full JSON
-        out.textContent = JSON.stringify(json, null, 2);
+        container.innerHTML = `
+          <p class="text-red-600">No imageUrl header found.</p>
+          <p>Response status: ${res.status}</p>
+        `;
       }
     });
   </script>
