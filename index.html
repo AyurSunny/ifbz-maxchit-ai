@@ -1,19 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>My Awesome Services</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  />
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gradient-to-br from-indigo-600 to-purple-600 font-poppins min-h-screen flex items-center justify-center">
-
   <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-lg">
     <h1 class="text-4xl font-bold mb-6 text-center">🚀 Welcome to My Services!</h1>
+
     <form id="service-form" enctype="multipart/form-data" class="space-y-4">
-      <!-- your inputs here… -->
-      <button id="submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg">
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Name</label>
+        <input
+          type="text"
+          name="name"
+          required
+          class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+      </div>
+
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Email</label>
+        <input
+          type="email"
+          name="email"
+          required
+          class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+      </div>
+
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Service Requested</label>
+        <select
+          name="service"
+          required
+          class="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          <option value="">– choose one –</option>
+          <option>ChitFund Help</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Upload Image (optional)</label>
+        <input
+          type="file"
+          name="image"
+          accept="image/*"
+          class="w-full p-2 border rounded-lg cursor-pointer focus:outline-none"
+        />
+      </div>
+
+      <button
+        type="submit"
+        id="submit-btn"
+        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition"
+      >
         Submit 🚀
       </button>
     </form>
@@ -23,33 +71,27 @@
   </div>
 
   <script>
-    const form = document.getElementById('service-form');
-    const output = document.getElementById('response-output');
-    form.addEventListener('submit', async e => {
+    document.getElementById('service-form').addEventListener('submit', async e => {
       e.preventDefault();
-      const url = 'https://hook.eu1.make.com/XXXXXXXXXXXX';  // ← your Make webhook URL
 
-      // collect form data
+      const url = 'https://hook.eu1.make.com/XXXXXXXXXXXX'; // ← your Make webhook URL
+      const form = e.target;
       const fd = new FormData(form);
 
-      // POST to Make
-      const res = await fetch(url, {
-        method: 'POST',
-        body: fd
-      });
-
-      // try to parse JSON (or text)
-      let body;
-      const ct = res.headers.get('content-type') || '';
-      if (ct.includes('application/json')) {
-        body = await res.json();
-        body = JSON.stringify(body, null, 2);
-      } else {
-        body = await res.text();
+      try {
+        const res = await fetch(url, { method: 'POST', body: fd });
+        let text;
+        const ct = res.headers.get('content-type') || '';
+        if (ct.includes('application/json')) {
+          const json = await res.json();
+          text = JSON.stringify(json, null, 2);
+        } else {
+          text = await res.text();
+        }
+        document.getElementById('response-output').textContent = text;
+      } catch (err) {
+        document.getElementById('response-output').textContent = 'Error: ' + err;
       }
-
-      // display it
-      output.textContent = body;
     });
   </script>
 </body>
